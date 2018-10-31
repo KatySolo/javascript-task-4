@@ -46,13 +46,12 @@ function getEmitter() {
                     events[e].splice(subscriberIndex, 1);
                 }
             });
-            // console.info(event, context);
 
             return this;
         },
 
 
-        emit: function (event) { // check time
+        emit: function (event) {
             const allEvents = getAllEvents(event);
             allEvents.forEach(function (e) {
                 const allSubscribers = events[e];
@@ -68,13 +67,12 @@ function getEmitter() {
             if (event !== 'begin') {
                 currentTime++;
             }
-            // console.info(event);
 
             return this;
         },
 
         several: function (event, context, handler, times) {
-            if (times <= 0) { // case 0
+            if (times <= 0) {
                 this.on(event, context, handler);
             }
             const finishTime = currentTime + times;
@@ -86,7 +84,7 @@ function getEmitter() {
         },
 
         through: function (event, context, handler, frequency) {
-            if (frequency <= 0) { // case 0
+            if (frequency <= 0) {
                 this.on(event, context, handler);
             }
             this.on(event, context, handler);
@@ -119,10 +117,7 @@ function findAllSubEvents(event, events) {
 
 function findSubscriber(allContexts, context) {
     for (var i = 0; i < allContexts.length; i++) {
-        const isWisdomSame = allContexts[i].data.wisdom === context.wisdom;
-        const isFocusSame = allContexts[i].data.focus === context.focus;
-
-        if (isFocusSame && isWisdomSame) {
+        if (allContexts[i].data === context) {
             return i;
         }
     }

@@ -12,7 +12,6 @@ const isStar = true;
  */
 function getEmitter() {
     var events = {};
-    var currentTime = 0;
 
     return {
 
@@ -22,18 +21,19 @@ function getEmitter() {
                     data: context,
                     action: handler,
                     finishTime: Infinity,
-                    frequency: 1
+                    frequency: 1,
+                    count: 0
                 });
             } else {
                 events[event] = [{
                     data: context,
                     action: handler,
                     finishTime: Infinity,
-                    frequency: 1
+                    frequency: 1,
+                    count: 0
                 }];
             }
 
-            // идемпотентность
             return this;
         },
 
@@ -57,16 +57,16 @@ function getEmitter() {
                 const allSubscribers = events[e];
                 if (allSubscribers !== undefined) {
                     allSubscribers.forEach(function (i) {
-                        const permissionToEmit = checkEvent(i, currentTime);
-                        if (permissionToEmit) {
+                        const permissionToEmit = checkEvent(i);
+                        if (!permissionToEmit) {
+                            i.count++;
                             i.action.call(i.data);
+                        } else {
+                            i.count++;
                         }
                     });
                 }
             });
-            if (event !== 'begin') {
-                currentTime++;
-            }
 
             return this;
         },
@@ -75,10 +75,10 @@ function getEmitter() {
             if (times <= 0) {
                 this.on(event, context, handler);
             }
-            const finishTime = currentTime + times;
+            // const finishTime = currentTime + times;
             this.on(event, context, handler);
-            events[event][findSubscriber(events[event], context)].finishTime = finishTime;
-            console.info(event, context, handler, times);
+            events[event][findSubscriber(events[event], context)].finishTime = times;
+            // console.info(event, context, handler, times);
 
             return this;
         },
@@ -89,18 +89,18 @@ function getEmitter() {
             }
             this.on(event, context, handler);
             events[event][findSubscriber(events[event], context)].frequency = frequency;
-            console.info(event, context, handler, frequency);
+            // console.info(event, context, handler, frequency);
 
             return this;
         }
     };
 }
 
-function checkEvent(event, currentTime) {
-    const isTimeAppropriate = event.finishTime > currentTime;
-    const isFrequencyAppropriate = currentTime % event.frequency === 0;
+function checkEvent(event) {
+    const isTimeAppropriate = event.finishTime <= event.count;
+    const isFrequencyAppropriate = event.count % event.frequency !== 0;
 
-    return isTimeAppropriate && isFrequencyAppropriate;
+    return isTimeAppropriate || isFrequencyAppropriate;
 }
 
 function findAllSubEvents(event, events) {

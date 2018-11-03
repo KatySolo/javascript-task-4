@@ -75,10 +75,8 @@ function getEmitter() {
             if (times <= 0) {
                 this.on(event, context, handler);
             }
-            // const finishTime = currentTime + times;
             this.on(event, context, handler);
             events[event][findSubscriber(events[event], context)].finishTime = times;
-            // console.info(event, context, handler, times);
 
             return this;
         },
@@ -89,7 +87,6 @@ function getEmitter() {
             }
             this.on(event, context, handler);
             events[event][findSubscriber(events[event], context)].frequency = frequency;
-            // console.info(event, context, handler, frequency);
 
             return this;
         }
@@ -106,8 +103,9 @@ function checkEvent(event) {
 function findAllSubEvents(event, events) {
     var result = [];
     Object.keys(events).forEach(function (i) {
-        const a = i.slice(event.length);
-        if (a[0] === '.') {
+        const subEvents = i.slice(event.length);
+        const rootEvent = i.substr(0, event.length);
+        if (subEvents[0] === '.' && rootEvent === event) {
             result.push(i);
         }
     });

@@ -42,9 +42,11 @@ function getEmitter() {
             allEventsToOff.forEach(function (e) {
                 const allContexts = events[e];
                 const subscriberIndex = findSubscriber(allContexts, context);
-                if (subscriberIndex !== -1) {
-                    events[e].splice(subscriberIndex, 1);
-                }
+                subscriberIndex.forEach(function (i) {
+                    if (i !== -1) {
+                        events[e].splice(subscriberIndex, 1);
+                    }
+                });
             });
 
             return this;
@@ -114,13 +116,18 @@ function findAllSubEvents(event, events) {
 }
 
 function findSubscriber(allContexts, context) {
-    for (var i = 0; i < allContexts.length; i++) {
+    const endValue = (allContexts !== undefined) ? allContexts.length : 0;
+    if (endValue === 0) {
+        return [-1];
+    }
+    var result = [];
+    for (var i = 0; i < endValue; i++) {
         if (allContexts[i].data === context) {
-            return i;
+            result.push(i);
         }
     }
 
-    return -1;
+    return result.reverse();
 }
 
 function getAllEvents(event) {

@@ -44,7 +44,7 @@ function getEmitter() {
                 const subscriberIndex = findSubscriber(allContexts, context);
                 subscriberIndex.forEach(function (i) {
                     if (i !== -1) {
-                        events[e].splice(subscriberIndex, 1);
+                        events[e].splice(i, 1);
                     }
                 });
             });
